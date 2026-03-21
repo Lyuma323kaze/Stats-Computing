@@ -222,3 +222,292 @@ Note: `is.numeric` is a general test for the “numberliness” of a vector and 
 > NULL > 1
 [3]logical(0)
 ```
+
+### Lec 5
+
+Different types will be coerced to the **most flexible** one.
+
+Comparison between strings: comparing the first character of the strings 
+Note: alphabeta first, numbers second
+
+Attributes by `attr`, user defined.
+`attributes` for reading attributes of teh object
+`str` for knowing the structure
+`structure` for constructing a new object with modified attributes.
+Use by `object$attribute`. 
+
+Advanced objects: vector + different attributes (levels, class, etc.)
+Attributes is the core bone of advanced objects.
+
+**Essential Attributes**: names, dim, class
+To get the 3 bro:
+```R
+> names(y)
+> dim(y)
+> class(y)
+```
+
+About **names**
+
+**Lists**
+**Recursive** vectors, which could contain other lists.
+Constructed by using `list` instead of `c` (for flat vector)
+Flatten by `unlist`. Test with `is.list`, convert by `as.list`
+- What `c` creates is an atomic vector or a list (when input contains list)
+
+**Factors**
+could only be assigned with preset levels, based on `integer`.
+
+**Matrices and Arrays**
+Adding `dim` attribute to an atomic
+special case: `matrix` with 2 dimensions
+**Column first**. 
+`nrow, ncol`, `rownames, colnames`, `dimnames`. 
+`length = nrow * ncol`
+`cbind, rbind` instead of `c` (for matrices)
+`abind` for array
+
+`dim(list)<-c(m,n)`: list-matrix
+arranging objects into a grid-like structure
+if x is list-matrix, `ix.matrix(x)` returns `TRUE`, by observing dimensions.
+
+**Data frame**
+Most common way of storing data in R
+with each column atomic vector
+`class: data.frame`
+A list of equal-length vectors, sharing properties of both matrix and list.
+Has no `dim` attributes 
+`length` is the length of the underlying list, so `==ncol()`
+`nrow()`
+Has `names()==colnames()`, `rownames()`
+`is.vector` returns `FALSE`: `vector` could not have attributes other than `names`
+
+Be careful of coercion !!!!!!!!!!!
+`cbind`: generalized from `c`, processing as `matrix`
+
+Useful functions
+`sample`
+```R
+set.seed()
+dat(sample(1:nrow(dat)), 100)
+dat(sample(1:nrow(dat)), 100, replace = T)
+```
+
+`replicate`
+```R
+replicate(100, mean(rnorm(1000)))
+```
+
+If-else
+```R
+if (cond) statement else statement2
+
+if (cond)
+	statement # else should be used with {}
+	
+if (cond) (
+	statement
+) else (
+	statement2
+)
+```
+For, while
+```R
+for (var in seq) statement
+for (var in seq) {
+	statement
+}
+while (cond) statement
+while (cond) {
+	statement
+}
+```
+
+`stopifnot`
+For class checking
+
+`...` as back door, which could process probable options for other functions in it
+
+`return` must be at the end 
+`return` is a function, so () is needed
+e.g. `if (x>y) TRUE else FALSE`
+could only be used in function definition
+
+**Operation**
+**IO data**
+`read.table, write.table` for tabular data
+`read.csv, read.delim` respectively for .csv(seperated) and .txt(tab delimited)
+
+`a <- file.choose()` GUI file choose
+`read.table(a, sep=',', header = 'T')`
+
+In Binary Format
+`load` & `save` with .RData format
+`save(x, y, file="xy.RData")`
+`save.image()` for saving the current workspace
+`unlink("xy.Rdata") ` deletes it
+
+
+### Lec 6
+**Computing** & **Vectorization**
+
+Loop in R is very slow.
+
+**Computation**
+`%*%` is the matrix multiplication
+`'*'` or `"*"` is the function name of multiplication
+`&&` is AND, processing vectors as scalars (first one), short circuited(may not consider the second one)
+`||` the short-circuited OR
+
+**Vector operations**
+Element wise (mapping)
+   e.g. 
+   ```R
+   (1:8)*(1:2)
+   ```
+   The short one would be looped over (12121212....)
+   Not times of length, then truncation and warning
+   Also for other operations, e.g. `^`
+   
+**Matrix operations**
+Transpose by `t`, diagonal by `diag(v)` (both sides)
+rank by `qr(M)$rank`, inverse by `solve`, `det` `eigen`
+`%*%` for matrix multiplication, `+ - * / ^` for element wise (commutable)
+Element wise operations should be with same dimensions for matrices, and for matrices with any vectors 
+`%*%` applies auto dimension fit for applicable vectors 
+what `t` processes must be a matrix, so does what returned
+For $1\times 1$ matrices, `[1]` for the value.
+
+**Subsetting** (Slicing)
+`x[-4]` remove the 4th ones, return new `x` with 1 less length
+`x[-(2:4)]` = `x[-2:-4]`
+`x[c(1, 2, 5)]`
+`x[x == 10]`
+`x[x < 0]`
+`x[x %in% c(1, 2, 5)]`
+Or by name
+`x[, "Ozone"]` where `x` is data frame, for all rows and specific column
+For data frame, is equivalent to `x$Ozone`
+`$` is only applicable for recursive objects, not for atomic vector
+`x[, c("wind", "temp")]`
+Or by `subset`
+`subset(x, Temp > 80, select = c(Ozone, Temp))`
+
+factor is integer vector with attribute `levels`
+each element in `list` is a `list`, when it comes to the content, use `[[i]]`
+Note: For contents in the data structures
+`[i]` for vectors and factors
+`[i,j]` for matrices and dataframes
+`[[i]]` for lists
+
+When it comes to `M[i,i]`, what returned is the content itself, i.e. for numeric ones, it returns a "numeric" number
+For avoiding degeneration, we can use `M[i,i, drop = F]`
+
+
+**Vectorization**
+self-defined operation vectors:
+```R
+'%it%' <- function(x, y) {
+	intersect(x,y)
+}
+a %it% b
+```
+Using `Reduce`
+```R
+a %it% b %it% c
+L = list(a, b, c)
+Reduce('%it%', L) # is equivalent to a %it% b %it% c
+```
+
+for data frame, `$` finds the frame as content, class not preserved
+indices for lists are recursive, so `iris[[c(2,4)]] == iris[[2]][[4]]`
+
+Using `Vectorize` for vectorization, which could receive recursive objects.
+
+`apply` family
+`sapply(vec, func)`, returns a vector
+`lapply(vec, func)`, returns a list
+`tapply(X, INDEX, FUNC)`, returns array, `aggregate` does similar, returning a data frame
+`apply(mat, 1or2, func)`, for matrices, 1 for rows, 2 for columns
+
+`with(df, operation)` operations in df without `$`.
+
+### Lec 7
+`mapply(func, x, times, MoreArgs)`, multivariate
+operate on args by times accordingly
+`MoreArgs` for usage of `func`
+```R
+mapply(function(x,y,z,k){(x+k)^(y+z)},
+c(a=2,b=3),c(A=3,B=4),c(a=1,b=1),c(A=2,B=2))
+```
+???????
+`outer(vec1, vec2, FUN = '*')` generate matrix
+`expand.grid` generate data frame of 2 column
+
+`ifelse(test, yes, no)`: vectorization of `if` 
+can be used by **nesting**
+
+`switch(cond, returns)`: `cond` is a integer as index, or string as names 
+Vectorization: by `apply` functions. 
+
+pre-allocation for the target vector when it comes to evident loop. 
+
+**Recursion**
+For factorial(10)
+```R
+Fac1 <- function(n){
+	if (n=0) return(1)
+	return(n*Fac1(n-1))
+}
+Fac1(10)
+```
+
+
+**Algebra**
+All $A$ are invertible square matrix.
+$a_{1}$ for columns, $b_{(1)}$ for rows
+$a_{j}b_{(j)}$ ranks 1
+Matrix multiplication is obtained by outer product summation of $a_{i}b_{(j)}$.
+$A^{-1}$ change of basis (operation on coordinates)
+$x = A^{-1}b$ : expanding $b$ in $R(A)$. 
+
+Considering complex cases, **Unitary** matrix requires that 
+$$
+Q^{*} = Q^{-1}
+$$
+where $*$ is the conjugate transpose ($^H$) of $Q$.
+All eigenvalues of unitary matrix should be of module $1$, and eigenvectors of different eigenvalues should be orthogonal.
+
+inner product remains -> length and angle remains
+
+$$
+\|A\|_{F} = \sqrt{tr(A^{*}A)}
+$$
+
+$L_{k}^{-1}$ is obtained by negating its subdiagonal entries.
+$L = L_{1}^{-1}L_{2}^{-1}L_{3}^{-1}$ 
+$l_{jk}= {x_{jk}\over x_{kk}}$
+### Lec 8
+**Pivoting** 
+Complete Pivoting
+Semi-definite matrix could perform Cholesky decomposition by using pivoting 
+**Least Squares Problems**
+Projection
+Overdetermined system of equations $Ax = b$
+Least squares:
+$$
+{\rm argmin}_{x} \|b - Ax\|
+$$
+$m>n$, $A_{m \times n}$.
+**normal equations**
+$$
+A^{*}Ax = A^{*}b
+$$
+nonsingular requires $A$ full rank
+Projection is not intrinsically orthogonal
+Definition: An projector is an **idempotent** matrix
+$$
+P = P^{2}
+$$
+then $P$ is a projection
+$P$ has eigenvalues $0,1$, $rank(P) = trace(P)$
