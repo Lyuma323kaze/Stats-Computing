@@ -511,3 +511,91 @@ P = P^{2}
 $$
 then $P$ is a projection
 $P$ has eigenvalues $0,1$, $rank(P) = trace(P)$
+
+### Lec 9
+$$
+P(I-P) =0
+$$
+therefore
+$$
+\begin{gathered}
+Im(I-P) = N(P)
+\\
+Im(P) = N(I-P)
+\\
+Im(P)\cap Im(I-P) = \{0\}
+\\
+N(P)\cap N(I-P) = \{0\}
+\end{gathered}
+$$
+$P$ is the projector onto $Im(P)$ along $Im(I-P)$
+
+Projector $P$ is orthogonal if $Im(P)$ and $N(P)$ are orthogonal, **if and only if** $P = P^{*}$.
+Therefore, for orthogonal projector, we have
+$$
+P = \hat{Q}\hat{Q}^{T}
+$$
+where columns of $\hat{Q}_{m\times n}$ are orthogonal. Then 
+$$
+P = \sum_{j=1}^{n}q_{i}q_{j}
+$$
+and we know 
+$$
+\begin{cases}
+P = qq^T \\
+P_{\perp} = I - qq^{T}
+\end{cases}
+$$
+G-S orthogonalization for arbitrary column space, 
+$$
+\begin{gathered}
+A(A^{T}A)^{-1}A^{T}\implies \sum_{i=1}^{n}QQ^{T}
+\\
+A = \hat{Q}\hat{R}
+\end{gathered}
+$$
+QR is better than normal equation (Cholesky), since $\kappa$ is better (sqrt)
+CGS/MGS, by the transition
+$$
+I - \sum_{i=1}^{n}q_{i}q_{i}^{*} = \prod_{i=1}^{n}(I - q_{i}q_{i}^{*})
+$$
+which could eliminate small effect of the nonorthogonality of the former steps.
+
+### Lec 9
+**Q**: What's the difference between MGS and CGS?
+**A**: They are mathematically identical (sum and prod), but stability differs (nonorthogonality propagation).
+
+GS as Triangular Orthogonlization
+
+Householder reflector $F$. (Introducing zeros)
+$F$ is diagonal component of orthogonal matrix, therefore $F$ itself is orthogonal.
+$$
+F = I - 2 \frac{vv^{T}}{v^{T}v}
+$$
+$F$ is Hermite. 
+$$
+v_{k} = sign(x_{1})\|x\| e_{1} + x
+$$
+$Q$ be obtained by operating on $e_{i}$.
+
+Householder is More Stable than GS.
+GS is triangular orthogonalization, step based on triangular; but Household is orthogonal triangularization, step based on orthogonal.
+$R$ is more stable than $Q$.
+
+LSquare by MGS
+$$
+x= R^{-1}z
+$$
+using the $R$ values, which are definitely stable.
+FLOPS:
+
+| Gaussian | $2m^{3}/3$ |
+| -------- | ---------- |
+|          |            |
+.etc. Gaussian faster than QR(House hold)
+
+Givens Rotation
+
+
+
+
