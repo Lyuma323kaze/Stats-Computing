@@ -596,6 +596,11 @@ FLOPS:
 
 Givens Rotation
 
+### Lec 10
+Rank is the number of non-zero Singular value but Eigenvalue.
 
+SVD: every matrix is diagonal.
 
+High-dimension SVD: using convolution.
 
+All the points become equidistant from each other s.t. distance-based algorithms tend to perform poorly.
