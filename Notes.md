@@ -604,3 +604,24 @@ SVD: every matrix is diagonal.
 High-dimension SVD: using convolution.
 
 All the points become equidistant from each other s.t. distance-based algorithms tend to perform poorly.
+
+### Lec 11
+$\Lambda(A)$ is the spectrum of $A$.
+Geometric multiplicity, algebraic multiplicity.
+Minimal polynomial $\mu_{A}$ , and Jordan Normal Form.
+For all polynomial $Q$ s.t. $Q(A)=0$ $\implies \mu_{A}|Q$.
+Cayley-Hamilton Thm: If $p_{A}(\lambda) = 0$, then $p_{A}(A) = 0$ $\implies \mu_{A}|p_{A}$
+
+A matrix is positive-definite when $a_{ij}<(a_{ii}+ a_{jj})/2$
+**Gershgorin circle theorem**: Every eigenvalue of $A$ lies within at least one of the Gershgorin discs $D(a_{ii},\sum_{j\ne i}|a_{ij}|)$.
+
+Power method
+
+Eigenvalue decomposition: $A = X \Lambda X^{-1}$, $A$ is nondefective/diagonalizable
+Orthogonal decomposition: $A=Q\Lambda Q^{*}$, $A$ is normal ($A^{*}A = AA^{*}$)
+Schur decomposition: $A = QTQ^{*}$ , $T$ is upper-triangular, always exists.
+The eigenvalues of $A$ appear on the diagonal of $T$.
+
+A real matrix $A$ can only be decomposed with a quasi-upper-triangular matrix $T$.
+
+When implementing SVD, $\sigma$ is always positive
