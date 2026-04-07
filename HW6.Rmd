@@ -1,0 +1,439 @@
+---
+title: HW6
+author: Zhen Wu
+output: pdf_document
+---
+## Prob. 10
+
+Since $P$ is a nonzero projector, it satisfies the idempotency property by definition.
+
+$$
+P^2 = P
+$$
+
+Any eigenvalue $\lambda$ of a projector must satisfy the equation $\lambda^2 = \lambda$, which implies that the only possible eigenvalues are $\lambda = 0$ or $\lambda = 1$.
+
+Because $P$ is given as a nonzero matrix, it must possess at least one eigenvalue equal to $1$.
+
+Recall that the spectral radius $\rho(P)$, defined as the maximum absolute value of the eigenvalues of $P$, provides a lower bound for the induced $2$-norm of any matrix.
+
+$$
+\|P\|_2 \geq \rho(P)
+$$
+
+Substituting the known spectral radius into this inequality, we obtain the first part of the proof.
+
+$$
+\|P\|_2 \geq 1
+$$
+
+Now, we consider the condition for equality, $\|P\|_2 = 1$.
+
+Suppose $P$ is an orthogonal projector, which implies $P$ is Hermitian (or symmetric in $\mathbb{R}^{m \times m}$), meaning $P = P^T$.
+
+The singular values of $P$ are defined as the square roots of the eigenvalues of $P^T P$.
+
+For an orthogonal projector, we have the following identity.
+
+$$
+P^T P = P P = P^2 = P
+$$
+
+Since the eigenvalues of $P$ are $1$ and $0$, the singular values of $P$ are $\sqrt{1} = 1$ and $\sqrt{0} = 0$.
+
+The $2$-norm is the largest singular value, so $\|P\|_2 = 1$.
+
+Conversely, suppose $\|P\|_2 = 1$.
+
+Let the singular value decomposition (SVD) of $P$ be given by the following expression.
+
+$$
+P = U \Sigma V^T
+$$
+
+In this decomposition, $U$ and $V$ are orthogonal matrices, and $\Sigma$ is a diagonal matrix of singular values $\sigma_1 \geq \sigma_2 \geq \dots \geq \sigma_r > 0$.
+
+Given $\|P\|_2 = 1$, we have $\sigma_1 = 1$, and consequently, $1 \geq \sigma_i > 0$ for all $i \in \{1, \dots, r\}$.
+
+Substituting the SVD into the projector equation $P^2 = P$, we get the following.
+
+$$
+(U \Sigma V^T)(U \Sigma V^T) = U \Sigma V^T
+$$
+
+By multiplying by $U^T$ on the left and $V$ on the right, the equation simplifies.
+
+$$
+\Sigma (V^T U) \Sigma = \Sigma
+$$
+
+Let $W = V^T U$, where $W$ is an orthogonal matrix.
+
+The equation can be written in terms of its components for the first $r$ indices.
+
+$$
+\sigma_i w_{ii} \sigma_i = \sigma_i \implies w_{ii} = \frac{1}{\sigma_i}
+$$
+
+Since $\sigma_i \leq 1$, it follows that $w_{ii} \geq 1$.
+
+However, the entries of an orthogonal matrix must satisfy $|w_{ij}| \leq 1$, which forces $w_{ii} = 1$ and $\sigma_i = 1$ for all $i \in \{1, \dots, r\}$.
+
+Because the diagonal entries $w_{ii}$ are all $1$, the orthogonality of $W$ requires that all other entries in the first $r$ rows and columns must be zero.
+
+$$
+W = \begin{pmatrix} I_r & 0 \\ 0 & W_{22} \end{pmatrix}
+$$
+
+This structure implies $U = V W$.
+
+Substituting this back into the SVD of $P$ yields the following result.
+
+$$
+P = V W \Sigma V^T = V \begin{pmatrix} I_r & 0 \\ 0 & W_{22} \end{pmatrix} \begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix} V^T = V \begin{pmatrix} I_r & 0 \\ 0 & 0 \end{pmatrix} V^T
+$$
+
+The resulting expression for $P$ is clearly symmetric.
+
+$$
+P^T = (V \Sigma V^T)^T = V \Sigma V^T = P
+$$
+
+Since $P$ is a symmetric projector, it is by definition an orthogonal projector.
+
+## Prob. 11
+
+To solve the problem of computing the smallest singular value for the given $m \times m$ matrix $A$, we first define the structure of the matrix and the mathematical relationship between its singular values and eigenvalues.
+
+The matrix $A$ is defined as follows.
+
+$$
+A = \begin{pmatrix} 0.1 & 1 & \dots & 1 \\ 0 & 0.1 & \dots & 1 \\ \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & \dots & 0.1 \end{pmatrix} \in \mathbb{R}^{m \times m}
+$$
+
+The singular values $\sigma_i$ of $A$ are the square roots of the eigenvalues of the matrix $A^T A$.
+
+$$
+\sigma_{min}(A) = \sqrt{\lambda_{min}(A^T A)}
+$$
+
+The following R code implements both the direct SVD approach and the eigenvalue approach for $1 \le m \le 30$.
+
+```{r}
+m_values <- 1:30
+svd_results <- numeric(30)
+eigen_results <- numeric(30)
+
+for (m in m_values) {
+  A <- matrix(1, nrow = m, ncol = m)
+  A[lower.tri(A)] <- 0
+  diag(A) <- 0.1
+
+  # Method 1: Direct SVD
+  s_values <- svd(A)$d
+  svd_results[m] <- min(s_values)
+  # Method 2: Eigenvalues of A^T * A
+  ata_eigen <- eigen(t(A) %*% A, symmetric = TRUE)$values
+  # Ensure no negative values due to precision issues before sqrt
+  eigen_results[m] <- sqrt(max(min(ata_eigen), 0))
+}
+
+# Plotting the results on a log scale
+plot(m_values, svd_results, type = "b", col = "blue", log = "y", pch = 16,
+     xlab = "Matrix size m", ylab = "Smallest Singular Value (log scale)",
+     main = "Comparison of Smallest Singular Value Computation")
+lines(m_values, eigen_results, type = "b", col = "red", pch = 4, lty = 2)
+legend("bottomleft", legend = c("svd(A)", "sqrt(min(eigen(A^T A)))"),
+       col = c("blue", "red"), pch = c(16, 4), lty = c(1, 2))
+```
+
+## Prob. 12
+
+The following R code constructs ten random matrices according to the specified distribution and computes the spectral abscissa alongside the matrix exponential norm over the interval $t \in [0, 20]$.
+
+The matrix $A$ is generated as $R - 2I$, where $R$ consists of standard normal entries.
+
+The library expm is utilized for the computation of the matrix exponential.
+```{r}
+library(expm)
+
+n <- 10
+t_vals <- seq(0, 20, length.out = 200)
+num_trials <- 10
+
+plot(NULL, xlim = c(0, 20), ylim = c(1, 1e4), log = "y",
+     xlab = "t", ylab = "Norm / Spectral Abscissa Bound",
+     main = "Norm of exp(tA) vs exp(t * alpha(A))")
+
+for (i in 1:num_trials) {
+  A <- matrix(rnorm(n^2), nrow = n) - 2 * diag(n)
+
+  # Calculate spectral abscissa alpha(A)
+  eigs <- eigen(A, only.values = TRUE)$values
+  alpha_A <- max(Re(eigs))
+
+  # Compute ||exp(tA)|| and exp(t*alpha(A))
+  norm_vals <- sapply(t_vals, function(t) norm(expm(t * A), type = "2"))
+  bound_vals <- exp(t_vals * alpha_A)
+
+  # Plot results
+  lines(t_vals, norm_vals, col = "blue", lwd = 1)
+  lines(t_vals, bound_vals, col = "red", lty = 2)
+}
+
+legend("topright", legend = c("||exp(tA)||", "exp(t * alpha(A))"),
+       col = c("blue", "red"), lty = c(1, 2))
+```
+
+The spectral abscissa $\alpha(A)$ governs the long-term asymptotic behavior of the matrix exponential norm, though it often overlooks short-term dynamics.
+
+$$
+\alpha(A) = \max_{j} \text{Re}(\lambda_j)
+$$
+
+In non-normal matrices, where $A^T A \neq AA^T$, non-orthogonal eigenvectors can cause transient growth, leading the norm to spike significantly before eventually decaying.
+
+$$
+\| e^{tA} \|_2 \gg e^{t \alpha(A)} \text{ for small } t
+$$
+
+If the spectral abscissa is determined by a complex conjugate pair of eigenvalues, the curve will exhibit persistent oscillations as $t \to \infty$.
+
+$$
+\lambda = \alpha(A) \pm i\beta, \quad \beta \neq 0
+$$
+
+The imaginary component $\beta$ introduces sinusoidal fluctuations that prevent the norm from following a simple exponential path.
+
+$$
+\| e^{tA} \|_2 \propto e^{t \alpha(A)} \left| \cos(\beta t + \phi) \right|
+$$
+
+Conversely, if the dominant eigenvalue is purely real, the norm will eventually approach a smooth, monotonic exponential growth or decay.
+
+$$
+\lim_{t \to \infty} \frac{\| e^{tA} \|_2}{e^{t \alpha(A)}} = C
+$$
+
+## Prob. 13
+
+To find the eigenvalue decomposition of the block matrix $B$, we define the eigenvalue problem for a partitioned vector.
+
+$$
+B \begin{bmatrix} x \\ y \end{bmatrix} = \lambda \begin{bmatrix} x \\ y \end{bmatrix}
+$$
+
+Expanding the matrix-vector product for the matrix $B = \begin{bmatrix} 0 & A^T \\ A & 0 \end{bmatrix}$, we obtain a system of coupled equations.
+
+$$
+\begin{bmatrix} 0 & A^T \\ A & 0 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = \begin{bmatrix} A^T y \\ Ax \end{bmatrix} = \begin{bmatrix} \lambda x \\ \lambda y \end{bmatrix}
+$$
+
+This system implies two primary relations: $A^T y = \lambda x$ and $Ax = \lambda y$.
+
+By substituting the second equation into the first, we can decouple the variables and identify the relationship to the singular values of $A$.
+
+$$
+A^T (Ax) = A^T (\lambda y) = \lambda (A^T y) = \lambda^2 x
+$$
+
+Similarly, substituting the first into the second yields the following.
+
+$$
+A (A^T y) = A (\lambda x) = \lambda (Ax) = \lambda^2 y
+$$
+
+These results demonstrate that $x$ and $y$ must be eigenvectors of $A^T A$ and $AA^T$, respectively, with the shared eigenvalue $\lambda^2$.
+
+From the provided singular value decomposition $A = U \Sigma V^T$, we know that $A^T A = V \Sigma^2 V^T$ and $AA^T = U \Sigma^2 U^T$.
+
+The eigenvalues of $A^T A$ are the squares of the singular values $\sigma_i^2$, meaning the eigenvalues of $B$ satisfy $\lambda^2 = \sigma_i^2$, or $\lambda = \pm \sigma_i$.
+
+The corresponding eigenvectors $x$ and $y$ are the right singular vectors $v_i$ and left singular vectors $u_i$.
+
+
+For each singular value $\sigma_i > 0$, we can construct two eigenvectors for $B$.
+
+If $\lambda = \sigma_i$ and we set $x = v_i$, then $y = \frac{1}{\sigma_i} A v_i = u_i$.
+
+If $\lambda = -\sigma_i$ and we set $x = v_i$, then $y = -\frac{1}{\sigma_i} A v_i = -u_i$.
+
+By normalizing these vectors, we obtain the orthonormal eigenvectors of $B$.
+
+$$
+q_i^{+} = \frac{1}{\sqrt{2}} \begin{bmatrix} v_i \\ u_i \end{bmatrix}, \quad q_i^{-} = \frac{1}{\sqrt{2}} \begin{bmatrix} v_i \\ -u_i \end{bmatrix}
+$$
+
+We can now assemble the full eigenvalue decomposition $B = Q \Lambda Q^T$.
+
+The $2m \times 2m$ diagonal matrix of eigenvalues $\Lambda$ contains the singular values and their negatives.
+
+$$
+\Lambda = \begin{bmatrix} \Sigma & 0 \\ 0 & -\Sigma \end{bmatrix}
+$$
+
+The corresponding orthogonal matrix $Q$ is formed by concatenating the normalized eigenvectors.
+
+$$
+Q = \frac{1}{\sqrt{2}} \begin{bmatrix} V & V \\ U & -U \end{bmatrix}
+$$
+
+The orthogonality of $Q$ is verified by the following product.
+
+$$
+Q^T Q = \frac{1}{2} \begin{bmatrix} V^T & U^T \\ V^T & -U^T \end{bmatrix} \begin{bmatrix} V & V \\ U & -U \end{bmatrix} = \frac{1}{2} \begin{bmatrix} V^T V + U^T U & V^T V - U^T U \\ V^T V - U^T U & V^T V + U^T U \end{bmatrix} = \begin{bmatrix} I & 0 \\ 0 & I \end{bmatrix}
+$$
+
+Therefore, the eigenvalue decomposition of matrix $B$ is given by the following expression.
+
+$$
+B = \left( \frac{1}{\sqrt{2}} \begin{bmatrix} V & V \\ U & -U \end{bmatrix} \right) \begin{bmatrix} \Sigma & 0 \\ 0 & -\Sigma \end{bmatrix} \left( \frac{1}{\sqrt{2}} \begin{bmatrix} V^T & U^T \\ V^T & -U^T \end{bmatrix} \right)
+$$
+
+## Prob. 14
+### (1)
+If $A$ is a Hermitian matrix, it satisfies the property $A = A^*$, where $A^*$ denotes the conjugate transpose.
+According to the spectral theorem, there exists a unitary matrix $U$ and a diagonal matrix of eigenvalues $\Lambda$ such that $A = U \Lambda U^*$.
+The induced $2$-norm of a matrix is defined by the following expression.
+
+$$
+\|A\|_2 = \sqrt{\lambda_{max}(A^* A)}
+$$
+
+Substituting the identity for Hermitian matrices, we have $A^* A = A^2$.
+Using the diagonalization of $A$, we can express $A^2$ in terms of the eigenvalues.
+
+$$
+A^2 = (U \Lambda U^*)(U \Lambda U^*) = U \Lambda^2 U^*
+$$
+
+The eigenvalues of $A^2$ are exactly the squares of the eigenvalues of $A$, denoted by $\lambda_i^2$.
+Consequently, the maximum eigenvalue of $A^* A$ is given by the following.
+
+$$
+\lambda_{max}(A^* A) = \max_{i} |\lambda_i|^2 = \left( \max_{i} |\lambda_i| \right)^2 = (\rho(A))^2
+$$
+
+Taking the square root of both sides, we reach the desired equality.
+
+$$
+\|A\|_2 = \rho(A)
+$$
+
+### (2)
+Let $\lambda$ be an eigenvalue of $A$ such that its magnitude equals the spectral radius, $|\lambda| = \rho(A)$.
+There exists a corresponding non-zero eigenvector $x$ that satisfies the eigenvalue equation.
+
+$$
+Ax = \lambda x
+$$
+
+By the definition of an induced matrix norm, the following inequality must hold for any vector $x$.
+
+$$
+\|Ax\| \leq \|A\| \|x\|
+$$
+
+Substituting the eigenvalue equation into the norm on the left-hand side, we get the following.
+
+$$
+\|\lambda x\| \leq \|A\| \|x\|
+$$
+
+Using the absolute homogeneity property of norms, we pull the scalar $\lambda$ outside.
+
+$$
+|\lambda| \|x\| \leq \|A\| \|x\|
+$$
+
+Since $x$ is a non-zero vector, we have $\|x\| > 0$, allowing us to divide both sides by $\|x\|$.
+This directly yields the inequality for the spectral radius.
+
+$$
+\rho(A) \leq \|A\|
+$$
+
+### (3)
+To prove $\lim_{k \to \infty} \|A^k\|^{1/k} = \rho(A)$, we establish both a lower and an upper bound.
+First, we apply the result from the previous section to the matrix $A^k$.
+
+$$
+\rho(A^k) \leq \|A^k\|
+$$
+
+Since the eigenvalues of $A^k$ are $\lambda_i^k$, it follows that $\rho(A^k) = (\rho(A))^k$.
+
+$$
+\rho(A)^k \leq \|A^k\| \implies \rho(A) \leq \|A^k\|^{1/k}
+$$
+
+For the upper bound, let $\epsilon > 0$ be an arbitrary constant.
+According to the first provided fact, there exists a specific norm $\|\cdot\|_a$ such that $\|A\|_a \leq \rho(A) + \epsilon$.
+By the submultiplicative property of induced norms, we have the following bound for $A^k$.
+
+$$
+\|A^k\|_a \leq (\|A\|_a)^k \leq (\rho(A) + \epsilon)^k
+$$
+
+Using the second fact regarding norm equivalence, there exists a constant $c > 0$ such that our target norm $\|\cdot\|$ is bounded.
+
+$$
+\|A^k\| \leq c \|A^k\|_a \leq c (\rho(A) + \epsilon)^k
+$$
+
+Taking the $k$-th root of the entire expression, we obtain the following.
+
+$$
+\|A^k\|^{1/k} \leq c^{1/k} (\rho(A) + \epsilon)
+$$
+
+As $k$ approaches infinity, the term $c^{1/k}$ converges to $1$, leading to the limit bound.
+
+$$
+\limsup_{k \to \infty} \|A^k\|^{1/k} \leq \rho(A) + \epsilon
+$$
+
+Since this holds for any $\epsilon > 0$, we conclude that the limit equals the spectral radius.
+
+$$
+\lim_{k \to \infty} \|A^k\|^{1/k} = \rho(A)
+$$
+
+### (4)
+Suppose the spectral radius of $A$ is strictly less than $1$.
+We can choose a sufficiently small $\epsilon > 0$ such that $\rho(A) + \epsilon = q < 1$.
+Based on the facts used in Gelfand's formula, there exists a norm $\|\cdot\|_a$ such that the following is true.
+
+$$
+\|A\|_a \leq \rho(A) + \epsilon = q
+$$
+
+Considering the norm of the $k$-th power of $A$ in this specific norm space, we have the following inequality.
+
+$$
+\|A^k\|_a \leq (\|A\|_a)^k \leq q^k
+$$
+
+Because $0 \leq q < 1$, the sequence $q^k$ vanishes as $k$ goes to infinity.
+
+$$
+\lim_{k \to \infty} \|A^k\|_a = 0
+$$
+
+By the principle of norm equivalence, all norms on a finite-dimensional space are equivalent, including the Frobenius norm.
+
+$$
+\|A^k\|_F \leq c \|A^k\|_a
+$$
+
+As the right-hand side goes to zero, the Frobenius norm of $A^k$ must also converge to zero.
+
+$$
+\lim_{k \to \infty} \|A^k\|_F = 0
+$$
+
+Since the convergence of the Frobenius norm to zero implies that every individual entry of the matrix converges to zero, we conclude the final result.
+
+$$
+\lim_{k \to \infty} A^k = 0
+$$
