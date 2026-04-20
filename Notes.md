@@ -625,3 +625,117 @@ The eigenvalues of $A$ appear on the diagonal of $T$.
 A real matrix $A$ can only be decomposed with a quasi-upper-triangular matrix $T$.
 
 When implementing SVD, $\sigma$ is always positive
+
+### Lec 13
+Computational statistics is Optimization in fact.
+
+Tradeoff between convergence rate and storage requirements.
+
+$L$ for likelihood, $l$ for log likelihood, $\theta$ for parameter, $s$ for $l'(\theta)$ (score function).
+$$
+l(\theta) = \log P(X|\theta)
+$$
+
+$X_{(i)}$ is **Order statistic**, the $i$th large value among the samples.
+
+For $U(0,b)$, 
+$$
+\begin{align*}
+L(b) =& \prod_{i=1}^{n}{1\over b}I_{[0,b]}(x_{i})\\
+=& {1\over b_{n}} I_{[0,b]}(x_{{n}}\le \cdots\le x_{(n)} )
+\end{align*}
+$$
+
+Profile/Concentrated MLE: dimension reduction.
+$$
+\max_{\theta} l(\theta) = \max_{\theta_{1}\theta_{2}}
+ l(\theta_{1}, \theta_{2}) = \max_{\theta_{1}}(\theta_{1},\hat{\theta_{2}(\theta_{1})})$$
+Hessian
+ $$
+ l''(\theta) = \left\{{\partial^{2}l\over  \partial \theta_{i}\partial\theta_{j}}\right\}_{i,j=1,\dots, p}
+$$
+ Observed information 
+$$
+J(\hat{\theta}) = -l''(\hat{\theta})
+$$
+Expected information
+$$
+I(\theta) = Var(s(\theta)) = E \left[
+l'(\theta)(l'(\theta))^{T} 
+\right] = -E \left[
+l''(\theta) 
+\right] = E[J(\theta)]
+$$
+When $\theta^{*}$ is the local maximum, $l'(\theta^{*})=0$, $l''(\theta^{*})$ is negative definite.
+
+3 Factors of iteration: **Starting value, Updating rule, Stopping criteria**.
+
+**Convergence of order** $\alpha$ and **rate of convergence** $c$ :
+$$
+\lim_{t\to \infty}\varepsilon^{(t)} = 0 \ {\rm and} \ \lim_{t\to \infty} {\|\varepsilon^{(t+1)} \|\over \|\varepsilon^{(t)} \|^{\alpha}} = c
+$$
+linearly, superlinear, quadratically.
+
+**Golden ratio Section Search**: for **unimodal convex** function.
+
+### Lec 14
+**Successive parabolic interpolation**: fast, order $\approx 1.324$.
+
+**For exam!**
+default function for 1-variate function extreme value: `optimize()`, golden section & parabolic Interpolation
+for multivariate: `optim()`, Nelder-Mead method
+2 methods above for optimizing, not root finding
+
+Nelder-Mead: starting point of 1
+
+Multivariate *root finding*: **Graphical methods, Bracketing methods, Open methods**
+
+<u>Bisection</u>: $g$ continuous and differentiable, slow
+
+**Banach Fixed-point Thm**: complete metric space, contraction
+
+Scaled Fixed-Point Iteration
+
+### Lec 15
+Convergence for fixed point is achieved $\iff$ the <u>spectral radius</u> $\rho(B)<1$.
+
+For all **norms**, $|\lambda_{B}|\le \|B\|$, and $\|B\|_{\infty}< 1$
+
+Convergence for Jacobian iteration (sufficient): **Strictly diagonally dominant** 
+sufficient and necessary: $A=D+E$, $A$ positive definite, $2D-A$ positive definite.
+<u>Rearrange</u> for diagonally dominant.
+
+G-S iteration: Converge if $A$ is either diagonally dominate or positive denifite
+SOR: (necessary): relaxation factor $\omega\in (0,2)$, $|B_{\omega}| = (\omega-1)^{n}$
+
+Nonlinear systems: Coordinate Descent
+For **convex, differentiable function**, coordinate descent reaches the global minimizer.
+
+**Survival Analysis**
+right-censored, left-censored
+The hazard function is (as conditional probability)
+$$
+h(t) = {f(t)\over 1-F(t)} = -{d\over dt} \log S(t) = {f(t)\over S(t)}
+$$
+proportional hazards model (Cox):  $\lambda(t)$ for baseline hazard
+Cumulative hazards $H(t)$, and $\Lambda(t)\triangleq \int_{-\infty}^{t}\lambda (u) du$.
+
+Default root search in R: `uniroot`, Brent's method, hybrid
+**inverse quadratic interpolation**: $y^2=2px$ (3 point), open, Lagrangian interpolation polynomial as basis functions, weight function by 1-order quantities.
+**secant interpolation**: 2 points, open
+if failed, use **bisection** (bracketing method), 
+
+Bisection: $|s-b|<|b-c|/2$ for acception.
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+  
+
+
